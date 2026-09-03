@@ -1,0 +1,6 @@
+ultralytics>=8.4.0
+opencv-python>=4.9.0
+numpy>=1.26
+PyYAML>=6.0
+# optional - only needed for src/datasets/download.py
+roboflow>=1.1.0

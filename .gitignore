@@ -1,0 +1,53 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Model weights -----------------------------------------------------------
+# Never commit these. yolo11*.pt is auto-downloaded by ultralytics on first run,
+# and the trained weapon model is a build artefact - a release asset or a Drive
+# link, not repo history. Committed binaries are permanent: they bloat every
+# future clone even after deletion.
+*.pt
+*.onnx
+*.engine
+*.torchscript
+
+# --- Data and outputs --------------------------------------------------------
+# Datasets are downloaded, not vendored (and the Roboflow/Sohas licences have
+# their own redistribution terms - see README).
+data/*
+!data/.gitkeep
+runs/
+alerts/*
+!alerts/.gitkeep
+models/*
+!models/.gitkeep
+
+# --- Media -------------------------------------------------------------------
+*.mp4
+*.avi
+*.mov
+
+# --- Packaging ---------------------------------------------------------------
+poaching_project.zip
+*.zip
+
+# --- Secrets -----------------------------------------------------------------
+# The Roboflow key is read from the ROBOFLOW_API_KEY env var and must stay
+# out of the repo.
+.env
+*.key
+secrets.*
+
+# --- Editors / OS ------------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

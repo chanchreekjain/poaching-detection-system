@@ -1,0 +1,84 @@
+# ---------------------------------------------------------------------------
+# Poaching Detection System - configuration
+# Every tunable lives here. Nothing in src/ hard-codes a threshold.
+# ---------------------------------------------------------------------------
+
+models:
+  # Stage 1: stock COCO-pretrained YOLO11. Detects the 'person' class (COCO id 0).
+  # Nothing to train - these weights auto-download on first use.
+  person_weights: yolo11s.pt
+  person_conf: 0.35
+  person_iou: 0.55
+  person_imgsz: 640
+
+  # Stage 2: the weapon detector YOU train (see src/train_weapon.py).
+  # Until it exists the system runs in person-only mode and says so loudly.
+  weapon_weights: models/weapon_yolo11s.pt
+  weapon_conf: 0.30
+  weapon_iou: 0.50
+  weapon_imgsz: 448
+
+  device: cpu          # 'cpu', 0, '0,1', or 'mps'
+  half: false          # fp16 - only meaningful on CUDA
+
+# --- Stage-2 cropping -------------------------------------------------------
+# A carried long gun sticks out well beyond the person's silhouette, so the
+# crop fed to the weapon model is deliberately wider than the person box.
+crop:
+  margin_x: 0.45       # fraction of box width added to EACH side
+  margin_y: 0.18       # fraction of box height added to top and bottom
+  min_size: 96         # skip person boxes smaller than this (px, longest side)
+  upscale_to: 448      # upscale small crops to this longest side before stage 2
+
+# --- Motion gating ----------------------------------------------------------
+# Camera-trap footage is mostly empty. Running YOLO on every frame is wasted
+# compute, so a cheap background-subtraction gate decides which frames are
+# worth looking at.
+motion:
+  enabled: true
+  history: 250         # MOG2 background history (frames)
+  var_threshold: 28
+  detect_shadows: true
+  min_area_ratio: 0.0012   # fraction of frame area that must change
+  blur_kernel: 5
+  dilate_iter: 2
+  open_iter: 1
+  hold_frames: 45      # once motion fires, keep the detector awake this long
+  keyframe_interval: 60  # force a detection pass every N frames regardless
+
+# --- Temporal-spatial clustering / evidence accumulation --------------------
+# Single-frame weapon hits are overwhelmingly false. A detection only becomes
+# an alert once a cluster of hits accumulates on the same track.
+cluster:
+  iou_match: 0.25      # IoU to link a detection into an existing track
+  max_age: 30          # frames a track survives without a match
+  window: 45           # rolling evidence window (frames)
+  min_armed_hits: 5    # weapon-positive frames required inside the window
+  min_person_hits: 6   # person-positive frames before a track is trusted at all
+  alert_cooldown: 300  # frames before the SAME track can alert again
+
+# --- Alert clip capture -----------------------------------------------------
+alert:
+  clip_seconds: 20     # total clip length
+  pre_seconds: 5       # of which this much is pre-roll from the ring buffer
+  out_dir: alerts
+  write_metadata: true
+  annotate_clip: true  # draw boxes on the saved clip
+  merge_concurrent: true  # a group of people = one incident = one clip
+
+# --- Threat scoring ---------------------------------------------------------
+# Weighted score in [0,1]. Tunable because the right weights are site-specific.
+scoring:
+  w_weapon: 0.60       # weapon evidence ratio inside the window
+  w_person: 0.20       # person detection confidence
+  w_persist: 0.10      # how long the track has persisted
+  w_night: 0.10        # night-time bonus (see night_hours)
+  night_hours: [18, 6] # local hours [start, end) treated as night
+  alert_threshold: 0.55
+
+# --- Run-level output -------------------------------------------------------
+output:
+  events_log: alerts/events.jsonl
+  annotated_video: null   # set to a path to write a full annotated render
+  show_fps: true
+  log_level: INFO

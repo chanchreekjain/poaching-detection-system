@@ -1,0 +1,15 @@
+# You develop on Windows; CI and Colab are Linux. Without this, git records
+# whatever line endings your editor happened to use and every file eventually
+# shows as fully modified for someone on the other OS.
+* text=auto eol=lf
+
+# Notebooks are JSON - never let git "fix" them.
+*.ipynb text eol=lf
+
+# Binary: no EOL translation, no diffing.
+*.pt   binary
+*.onnx binary
+*.jpg  binary
+*.png  binary
+*.mp4  binary
+*.zip  binary
