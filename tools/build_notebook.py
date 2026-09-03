@@ -17,9 +17,10 @@ CODE = "code"
 CELLS: list[tuple[str, str]] = [
 (MD, """# Stage-2 Weapon Detector — Colab (free tier)
 
-Trains the weapon detector for the Poaching Detection System. Stage 1 (people)
-needs no training; this notebook produces the model that decides whether a
-detected human is **armed**.
+Trains the weapon detector for the
+[Poaching Detection System](https://github.com/chanchreekjain/poaching-detection-system).
+Stage 1 (people) needs no training; this notebook produces the model that
+decides whether a detected human is **armed**.
 
 **Free-tier reality:** sessions disconnect, often within a few hours and
 without warning. Checkpoints are therefore written to **Google Drive**, and the
@@ -52,46 +53,34 @@ import ultralytics, torch
 print('ultralytics', ultralytics.__version__, '| torch', torch.__version__,
       '| cuda', torch.cuda.is_available())"""),
 
-(MD, """## 4. Upload the project
+(MD, """## 4. Clone the project
 
-Upload **`poaching_project.zip`** from your `poaching` folder. This keeps one
-source of truth: the crop-building code that runs here is the same code the
-detector uses at inference, so the training and inference distributions cannot
-drift apart.
+Pulls the code straight from GitHub. This keeps one source of truth: the
+crop-building code that runs here is the same code the detector uses at
+inference, so the training and inference distributions cannot drift apart.
 
-The zip is cached to Drive, so on a reconnect this cell restores it without
-re-uploading."""),
+Re-running this cell after a disconnect takes a second and always gives you the
+current code — no upload, and no risk of training against a stale copy.
 
-(CODE, """#@title 4. Upload / restore the project
-import os, shutil, zipfile
+**It clones what you have *pushed*.** If you changed something locally and did
+not commit and push it, the change is not here."""),
 
-WORK = '/content/poaching'
-cached_zip = os.path.join(DRIVE_ROOT, 'poaching_project.zip')
+(CODE, """#@title 4. Clone the project
+import os, shutil
 
-if os.path.exists(cached_zip):
-    print('restoring cached zip from Drive')
-    src = cached_zip
-else:
-    from google.colab import files
-    up = files.upload()
-    src = list(up.keys())[0]
-    shutil.copy(src, cached_zip)
-    print('cached to Drive for next time')
+REPO = "https://github.com/chanchreekjain/poaching-detection-system.git"  #@param {type:"string"}
+BRANCH = "main"  #@param {type:"string"}
+WORK = '/content/poaching-detection-system'
 
 if os.path.exists(WORK):
-    shutil.rmtree(WORK)
-with zipfile.ZipFile(src) as z:
-    z.extractall('/content')
+    shutil.rmtree(WORK)          # always start from a clean checkout
+!git clone -q --branch {BRANCH} {REPO} {WORK}
 
-# the zip may or may not contain a top-level folder
-if not os.path.exists(os.path.join(WORK, 'src')):
-    for d in os.listdir('/content'):
-        p = os.path.join('/content', d)
-        if os.path.isdir(p) and os.path.exists(os.path.join(p, 'src', 'detector.py')):
-            WORK = p
-            break
+assert os.path.exists(os.path.join(WORK, 'src', 'detector.py')), \\
+    'clone failed or repo layout unexpected - check REPO and BRANCH above'
 
 os.chdir(WORK)
+!git log -1 --format='cloned commit: %h %s'
 print('working dir:', os.getcwd())
 print(sorted(os.listdir()))"""),
 

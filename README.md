@@ -170,13 +170,14 @@ On a local GPU:
 python -m src.train_weapon --data data/weapon_crops/data.yaml --epochs 80 --device 0
 ```
 
-**On Colab free tier — use `notebooks/train_weapon_colab.ipynb`.** Upload
-`poaching_project.zip` to it. Checkpoints go to Google Drive and the training
-cell is resumable, because free-tier sessions disconnect without warning; on a
-reconnect, re-run cells 1–6 and set `RESUME = True`. The notebook also makes you
-*look at the training crops* before spending GPU hours — a coordinate bug
-produces plausible-but-wrong boxes that train cleanly and yield a quietly
-useless model.
+**On Colab free tier — use `notebooks/train_weapon_colab.ipynb`.** It clones
+this repo, so there is nothing to upload; note that it clones what you have
+**pushed**, so commit local changes first. Checkpoints go to Google Drive and
+the training cell is resumable, because free-tier sessions disconnect without
+warning; on a reconnect, re-run cells 1–6 and set `RESUME = True`. The notebook
+also makes you *look at the training crops* before spending GPU hours — a
+coordinate bug produces plausible-but-wrong boxes that train cleanly and yield a
+quietly useless model.
 
 Copies `best.pt` to `models/weapon_yolo11s.pt`, which `config.yaml` already
 points at. On CPU this is impractically slow.
