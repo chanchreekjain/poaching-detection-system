@@ -327,6 +327,7 @@ is the route to look at if this is ever commercialised or embedded in a product.
 [Unverified] That is Ultralytics' stated position as of August 2026; I am not a
 lawyer and this is not legal advice.
 
+
 Dataset terms are separate from the code licence and travel with the data:
 
 - Roboflow *Person-Gun Detection-1* — **CC BY 4.0**: attribution required.
